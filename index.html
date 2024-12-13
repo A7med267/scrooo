@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #8339be;
+            margin: 20px;
+            color: #ffffff;
+        }
+        h1 {
+            text-align: center;
+            color: #f5acca;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 12px 8px rgba(80, 80, 80, 0.1);
+        }
+        th, td {
+            border: 2px solid #525252;
+            padding: 10px;
+        }
+        th {
+            background-color: #721009;
+            color: white;
+        }
+        td {
+            background-color:rgb(97, 5, 109);
+        }
+        .green {
+            background-color: #28a745;
+            color: rgb(110, 1, 124);
+        }
+    </style>
+</head>
+<body>
+    <h1 style="font-size: 50px;">سكرو</h1>
+    <table id="dynamicTable">
+        <thead>
+            <tr>
+                <th contenteditable="true">Name</th>
+                <th contenteditable="true"></th>
+                <th contenteditable="true"></th>
+                <th contenteditable="true"></th>
+                <th contenteditable="true"></th>
+                <th contenteditable="true"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Value Rows -->
+            <tr><td style="background-color: rgb(17, 5, 175); color: #ffffff; width: 90px;" contenteditable="false">Round 1 </td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"><td contenteditable="true"></td></tr>
+            <tr><td  style="background-color:rgb(17, 5, 175);width: 90px; color: #ffffff;" contenteditable="false">Round 2</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"><td contenteditable="true"></td></tr>
+            <tr><td style="background-color: rgb(17, 5, 175);width: 90px ; color: #ffffff;"  contenteditable="false">Round 3</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"><td contenteditable="true"></td></tr>
+            <!-- Multiplied Row -->
+            <tr><td style="background-color: rgb(17, 5, 175); width: 110px ; color: #ffffff;" contenteditable="true">Round 4 (x2)</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <!-- Sum Row -->
+            <tr class="sum"><td style="background-color: rgb(17, 5, 175);width: 90px  ; color: #ffffff;""  contenteditable="false">Sum</td><td></td><td></td><td></td><td></td><td></td></tr>
+        </tbody>
+    </table>
+    <script>
+        const table = document.getElementById('dynamicTable');
+
+        function updateTable() {
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const valueRows = rows.slice(0, -2); // All rows except the last two
+            const multipliedRow = rows[rows.length - 2]; // Row before the sum
+            const sumRow = rows[rows.length - 1]; // Sum row
+
+            const columns = valueRows[0].cells.length - 1; // Number of columns excluding the first column
+
+            for (let col = 1; col <= columns; col++) {
+                let columnSum = 0;
+
+                valueRows.forEach(row => {
+                    const cell = row.cells[col];
+                    const value = parseFloat(cell.textContent) || 0;
+
+                    // Check if the cell value is 0
+                    if (value === 0) {
+                        cell.classList.add('green');
+                    } else {
+                        cell.classList.remove('green');
+                    }
+
+                    columnSum += value;
+                });
+
+                // Handle the second to last row (multipliedRow) just like other rows
+                const multipliedCells = Array.from(multipliedRow.cells).slice(1); // Exclude the first cell (which is "Round x")
+                multipliedCells.forEach(cell => {
+                    const value = parseFloat(cell.textContent) || 0;
+                    // Check if the cell value is 0
+                    if (value === 0) {
+                        cell.classList.add('green');
+                    } else {
+                        cell.classList.remove('green');
+                    }
+                });
+
+                sumRow.cells[col].textContent = columnSum;
+            }
+
+            // Find the minimum value in the sum row
+            const sumCells = Array.from(sumRow.cells).slice(1); // Skip the first cell (Sum label)
+            let minValue = Infinity;
+            let minCell = null;
+
+            sumCells.forEach(cell => {
+                const value = parseFloat(cell.textContent) || 0;
+                if (value < minValue) {
+                    minValue = value;
+                    minCell = cell;
+                }
+            });
+
+            // Reset all sum row cell backgrounds
+            sumCells.forEach(cell => {
+                cell.style.backgroundColor = "";
+            });
+
+            // Set the background color of the cell with the minimum value to green
+            if (minCell) {
+                minCell.style.backgroundColor = "green";
+            }
+        }
+
+        // Listen for input changes in the table
+        table.addEventListener('input', updateTable);
+    </script>
+</body>
+</html>
