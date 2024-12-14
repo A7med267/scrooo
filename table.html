@@ -32,11 +32,15 @@
             color: white;
         }
         td {
-            background-color:rgb(97, 5, 109);
+            background-color: rgb(97, 5, 109);
         }
         .green {
-            background-color: #28a745;
-            color: rgb(110, 1, 124);
+            background-color: #28a745 !important;
+            color: #ffffff;
+        }
+        .red {
+            background-color: #dc3545 !important;
+            color: #ffffff;
         }
     </style>
 </head>
@@ -55,13 +59,14 @@
         </thead>
         <tbody>
             <!-- Value Rows -->
-            <tr><td style="background-color: rgb(17, 5, 175); color: #ffffff; width: 90px;" contenteditable="false">Round 1 </td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"><td contenteditable="true"></td></tr>
-            <tr><td  style="background-color:rgb(17, 5, 175);width: 90px; color: #ffffff;" contenteditable="false">Round 2</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"><td contenteditable="true"></td></tr>
-            <tr><td style="background-color: rgb(17, 5, 175);width: 90px ; color: #ffffff;"  contenteditable="false">Round 3</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"><td contenteditable="true"></td></tr>
+            <tr><td style="background-color: rgb(17, 5, 175); color: #ffffff; width: 90px;" contenteditable="false">Round 1 </td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td  style="background-color:rgb(17, 5, 175);width: 90px; color: #ffffff;" contenteditable="false">Round 2</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td style="background-color: rgb(17, 5, 175);width: 90px ; color: #ffffff;"  contenteditable="false">Round 3</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td style="background-color: rgb(17, 5, 175);width: 90px ; color: #ffffff;"  contenteditable="false">Round 4</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
             <!-- Multiplied Row -->
-            <tr><td style="background-color: rgb(17, 5, 175); width: 110px ; color: #ffffff;" contenteditable="true">Round 4 (x2)</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+            <tr><td style="background-color: rgb(17, 5, 175); width: 110px ; color: #ffffff;" contenteditable="false">Round 5 (x2)</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
             <!-- Sum Row -->
-            <tr class="sum"><td style="background-color: rgb(17, 5, 175);width: 90px  ; color: #ffffff;""  contenteditable="false">Sum</td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr class="sum"><td style="background-color: rgb(17, 5, 175);width: 90px  ; color: #ffffff;" contenteditable="false">Sum</td><td></td><td></td><td></td><td></td><td></td></tr>
         </tbody>
     </table>
     <script>
@@ -69,66 +74,60 @@
 
         function updateTable() {
             const rows = Array.from(table.querySelectorAll('tbody tr'));
-            const valueRows = rows.slice(0, -2); // All rows except the last two
-            const multipliedRow = rows[rows.length - 2]; // Row before the sum
+            const valueRows = rows.slice(0, -1); // Exclude only the last row (Sum row)
+            const multipliedRow = rows[rows.length - 2]; // "Round 5 (x2)" row
             const sumRow = rows[rows.length - 1]; // Sum row
-
             const columns = valueRows[0].cells.length - 1; // Number of columns excluding the first column
 
             for (let col = 1; col <= columns; col++) {
                 let columnSum = 0;
 
+                // Process each value row and calculate sum
                 valueRows.forEach(row => {
                     const cell = row.cells[col];
                     const value = parseFloat(cell.textContent) || 0;
 
-                    // Check if the cell value is 0
-                    if (value === 0) {
-                        cell.classList.add('green');
+                    // Handle "Round 5 (x2)" row (multiply its value by 2)
+                    if (row === multipliedRow) {
+                        columnSum += value * 2; // Add multiplied value to sum
                     } else {
-                        cell.classList.remove('green');
-                    }
-
-                    columnSum += value;
-                });
-
-                // Handle the second to last row (multipliedRow) just like other rows
-                const multipliedCells = Array.from(multipliedRow.cells).slice(1); // Exclude the first cell (which is "Round x")
-                multipliedCells.forEach(cell => {
-                    const value = parseFloat(cell.textContent) || 0;
-                    // Check if the cell value is 0
-                    if (value === 0) {
-                        cell.classList.add('#ffff');
-                    } else {
-                        cell.classList.remove('green');
+                        columnSum += value;
                     }
                 });
 
+                // Update the sum row for this column
                 sumRow.cells[col].textContent = columnSum;
             }
 
-            // Find the minimum value in the sum row
-            const sumCells = Array.from(sumRow.cells).slice(1); // Skip the first cell (Sum label)
+            // Highlight minimum and maximum values in the Sum row
+            const sumCells = Array.from(sumRow.cells).slice(1); // Exclude the first cell (Sum label)
             let minValue = Infinity;
+            let maxValue = -Infinity;
             let minCell = null;
+            let maxCell = null;
 
             sumCells.forEach(cell => {
                 const value = parseFloat(cell.textContent) || 0;
+
+                // Find the minimum value
                 if (value < minValue) {
                     minValue = value;
                     minCell = cell;
                 }
+
+                // Find the maximum value
+                if (value > maxValue) {
+                    maxValue = value;
+                    maxCell = cell;
+                }
+
+                // Reset cell classes
+                cell.classList.remove('green', 'red');
             });
 
-            // Reset all sum row cell backgrounds
-            sumCells.forEach(cell => {
-                cell.style.backgroundColor = "";
-            });
-
-            // Set the background color of the cell with the minimum value to green
-            if (minCell) {
-                minCell.style.backgroundColor = "green";
-            }
+            // Apply green for minimum value and red for maximum value
+            if (minCell) minCell.classList.add('green');
+            if (maxCell) maxCell.classList.add('red');
         }
 
         // Listen for input changes in the table
