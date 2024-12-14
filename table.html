@@ -38,10 +38,6 @@
             background-color: #28a745 !important;
             color: #ffffff;
         }
-        .red {
-            background-color: #dc3545 !important;
-            color: #ffffff;
-        }
     </style>
 </head>
 <body>
@@ -99,35 +95,28 @@
                 sumRow.cells[col].textContent = columnSum;
             }
 
-            // Highlight minimum and maximum values in the Sum row
-            const sumCells = Array.from(sumRow.cells).slice(1); // Exclude the first cell (Sum label)
-            let minValue = Infinity;
-            let maxValue = -Infinity;
-            let minCell = null;
-            let maxCell = null;
+            // Highlight minimum values for each row
+            rows.forEach(row => {
+                const cells = Array.from(row.cells).slice(1); // Skip the first cell (row label)
+                let minValue = Infinity;
+                let minCell = null;
 
-            sumCells.forEach(cell => {
-                const value = parseFloat(cell.textContent) || 0;
+                cells.forEach(cell => {
+                    const value = parseFloat(cell.textContent) || 0;
 
-                // Find the minimum value
-                if (value < minValue) {
-                    minValue = value;
-                    minCell = cell;
-                }
+                    // Reset cell class
+                    cell.classList.remove('green');
 
-                // Find the maximum value
-                if (value > maxValue) {
-                    maxValue = value;
-                    maxCell = cell;
-                }
+                    // Check for minimum value
+                    if (value < minValue) {
+                        minValue = value;
+                        minCell = cell;
+                    }
+                });
 
-                // Reset cell classes
-                cell.classList.remove('green', 'red');
+                // Apply green for the minimum cell
+                if (minCell) minCell.classList.add('green');
             });
-
-            // Apply green for minimum value and red for maximum value
-            if (minCell) minCell.classList.add('green');
-            if (maxCell) maxCell.classList.add('red');
         }
 
         // Listen for input changes in the table
